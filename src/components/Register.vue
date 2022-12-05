@@ -17,7 +17,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import qs from "qs";
 import {ElMessage} from "element-plus";

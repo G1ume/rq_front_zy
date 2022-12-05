@@ -31,7 +31,6 @@ const routes = [
         }
     }
 ]
-
 const router = createRouter({
     history: routerHistory,
     routes
