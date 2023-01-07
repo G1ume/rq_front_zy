@@ -29,7 +29,7 @@ const routes = [
         meta: {
             keepalive: false
         }
-    }
+    },
 ]
 const router = createRouter({
     history: routerHistory,

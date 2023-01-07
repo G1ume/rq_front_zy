@@ -19,8 +19,8 @@
       </template>
       <template #extra>
         <div class="flex items-center">
-          <el-button type="primary" @click="tologin"><span>{{this.online?'切换账号':'登录'}}</span></el-button>
-          <el-button class="ml-2"  @click="dialogVisible = true">注销</el-button>
+          <el-button type="primary" @click="tologin" v-show="!online"><span>登录</span></el-button>
+          <el-button class="ml-2" @click="dialogVisible = true" v-show="online">注销</el-button>
           <el-dialog
               v-model="dialogVisible"
               title="注意"
@@ -42,49 +42,9 @@
   </div>
   <el-tabs type="border-card">
     <el-tab-pane label="Question List">
-      <div v-show="!this.online">
-        <p>请登录后查看</p>
-      </div>
-      <el-space wrap>
-        <el-card v-for="i in pageSize" :key="i" class="box-card" style="width: 250px" v-show="i<=eleNum">
-          <template #header>
-            <div class="card-header">
-              <span>{{ "问题" + (qs.parse(qlist.at(i + offset - 1)).id) }}</span>
-              <el-button class="button" type="primary" @click="showAnswer (qlist.at(i+offset-1))" text>查看答案
-              </el-button>
-              <el-dialog
-                  v-model="answerVisible"
-                  :title=qs.parse(cur_q).content.toString()
-                  width="40%">
-                <span>{{ "问题 " + qs.parse(cur_q).id + " 答案是: " + qs.parse(cur_q).answer }}</span>
-                <template #footer>
-                    <span class="dialog-footer1">
-                      <el-button @click="answerVisible = false" type="primary">确定</el-button>
-                    </span>
-                </template>
-              </el-dialog>
-            </div>
-          </template>
-          <div>
-            {{ "问题描述: " + qs.parse(qlist.at(i - 1)).content }}
-          </div>
-        </el-card>
-      </el-space>
-      <div class="pageChange">
-        <el-pagination
-            v-model:current-page="page1"
-            layout="prev, pager, next"
-            :hide-on-single-page=true
-            :total=qlist.length
-            :page-size=pageSize
-            @current-change="changePage"
-        />
-      </div>
+      <QuestionList/>
     </el-tab-pane>
-    <el-tab-pane label="Random Question" :disabled="this.online">
-      <div v-show="!online">
-        <p>请登录后查看</p>
-      </div>
+    <el-tab-pane label="Random Question" :disabled="!online">
       <div v-show="online">
         <el-progress
             width="60"
@@ -94,10 +54,7 @@
         </el-progress>
       </div>
     </el-tab-pane>
-    <el-tab-pane label="Upload Question" :disabled="this.online">
-      <div v-show="!online">
-        <p>请登录后查看</p>
-      </div>
+    <el-tab-pane label="Upload Question" :disabled="!online">
       <div v-show="online">
         <p>Role</p>
         <el-upload
@@ -122,7 +79,7 @@
         </el-upload>
       </div>
     </el-tab-pane>
-    <el-tab-pane label="Personal Page" :disabled="this.online">
+    <el-tab-pane label="Personal Page" :disabled="!online">
       <div v-show="!online">
         <p>请登录后查看</p>
       </div>
@@ -135,36 +92,18 @@
 </template>
 <script setup>
 import {UploadFilled} from '@element-plus/icons-vue'
-import qs from "qs";
-import {ref} from "vue";
-let eleNum = 20
-let offset = 0
-const pageSize = 20
-const qlist = []
-const page1 = ref(5)
-// eslint-disable-next-line no-unused-vars
-const handleCurrentChange = (val) => {
-  offset = (val - 1) * 20
-  eleNum = (val) * 20 > qlist.length ? qlist.length - offset : pageSize
-  console.log(val, offset, eleNum)
-}
-/*
-qlist.push(qs.stringify({content: 'q0',type: '',id: 0,path: '',answer: 'a0'}))
-qlist.push(qs.stringify({content: 'q1',type: '',id: 1,path: '',answer: 'a1'}))
-qlist.push(qs.stringify({content: 'q2',type: '',id: 2,path: '',answer: 'a2'}))
-*/
+import QuestionList from "@/components/QuestionList.vue";
+
 store.commit('getUserName')
 store.commit('getAccessToken')
-for (let i = 0; i < 50; i++) {
-  qlist.push(qs.stringify({content: 'q' + i, type: '', id: i + 1, path: '', answer: 'a' + i}))
-}
-//console.log(qlist)
 </script>
 
 <script>
 import {ElMessage} from "element-plus";
 import store from "@/store";
 import Cookies from "js-cookie";
+import {ref} from "vue";
+import qs from "qs";
 
 const dialogVisible = ref(false)
 const answerVisible = ref(false)
@@ -178,7 +117,7 @@ export default {
   data() {
     return {
       username: store.state.user_name,
-      online: store.state.access_token,
+      online: false,
       cur_q: qs.stringify({
         content: '',
         type: '',
@@ -186,25 +125,32 @@ export default {
         path: '',
         answer: ''
       }),
-      eleNum: 0,
+      eleNum: 20,
       pageSize: 20,
-      offset: 0,
+      headIndex: 0,
+      qlist1: [],
+      pagenum: 0,
+      ms1: '登录',
     }
+  },
+  created() {
+    this.qlistReload()
+    this.onlineReload()
   },
   methods: {
     tologin: function () {
       this.$router.push({
         name: "Login"
-      })
+      }).then(
+          this.onlineReload()
+      )
     },
     debug: function () {
-      if (store.state.access_token) {
-        console.log('OnLine')
-      } else {
-        console.log('OffLine')
-      }
       store.commit('getUserName')
       console.log(this.online, this.username, Cookies.get('user_name'))
+      //console.log(this.qlist1)
+      console.log(store.state.access_token)
+      this.onlineReload()
     },
     onBack: function () {
       ElMessage.warning("没有上一页")
@@ -223,9 +169,26 @@ export default {
       answerVisible.value = true
       this.curAns = '问题' + qs.parse(this.cur_q).ans + '答案：'
     },
-    changePage: function (val) {
-
-      console.log(val, this.offset, this.eleNum)
+    changePage(val) {
+      //this.qlistReload()
+      this.pagenum = val
+      this.headIndex = (this.pagenum - 1) * 20
+      this.eleNum = (this.pagenum) * 20 > this.qlist1.length ? this.qlist1.length - this.headIndex : 20
+    },
+    async qlistReload() {
+      this.qlist1 = []
+      for (let i = 0; i < 50; i++) {
+        this.qlist1.push(qs.stringify({content: 'q' + i, type: '', id: i + 1, path: '', answer: 'a' + i}))
+      }
+    },
+    async onlineReload() {
+      store.commit('getAccessToken')
+      this.online = store.state.access_token
+      if (this.online) {
+        this.ms1 = '注销'
+      } else {
+        this.ms1 = '登录'
+      }
     }
   }
 }

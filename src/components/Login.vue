@@ -1,7 +1,8 @@
 <template>
   <div class="login">
+    <h1>请登录</h1>
     <div>
-      <el-input placeholder="请输入用户名" v-model="name" clearable class="input_style">输入内容为：</el-input>
+      <el-input placeholder="请输入账号" v-model="name" clearable class="input_style">输入内容为：</el-input>
       <span v-if="error.name" class="err-msg">{{ error.name }}</span>
     </div>
     <div>
@@ -10,7 +11,7 @@
     </div>
     <div>
       <el-button type="primary" @click="login" class="login_style">登录</el-button>
-      <p>没有账号？</p><el-link type="primary" @click = "toRegister">立即注册</el-link>
+      <p v-show="true"><span>没有账号？<el-link type="primary" @click = "toRegister" >立即注册</el-link></span></p>
     </div>
 
   </div>

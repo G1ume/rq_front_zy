@@ -12,7 +12,7 @@ app.use(ElementPlus)
 app.use(store)
 // eslint-disable-next-line no-unused-vars
 const LocalHost = 'http://localhost:8000'
-const self_Internet = 'http://10.128.50.115:8000'
+const self_Internet = 'http://192.168.3.62:8000'
 axios.defaults.baseURL = self_Internet
 app.config.globalProperties.$axios = axios
 

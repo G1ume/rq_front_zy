@@ -5,7 +5,7 @@ export default createStore({
     state: {
         // state里面定义了一些要使用的变量
         user_name: '游客',
-        access_token: '',
+        access_token: false,
         refresh_token: '',
         last_token_refresh_time: new Date("October 01, 1975 00:00:00"),  // 以1975-10-01 00:00:00 为初始值
     },
@@ -20,18 +20,23 @@ export default createStore({
         },
         clearUserName(state) {
             state.user_name = '游客'
-            Cookies.remove('user_name')
+            Cookies.set('user_name', '游客')
+        },
+        getUserName(state) {
+            state.user_name = Cookies.get('user_name')
         },
         setAccessToken(state, val) {
             state.access_token = val
             Cookies.set('access_token', val)
         },
         clearAccessToken(state) {
-            state.access_token = ''
+            state.access_token = false
             Cookies.remove('access_token')
         },
         getAccessToken(state) {
-            state.access_token = state.access_token || Cookies.get('access_token')
+            if (Cookies.get('access_token')!=='true'){
+                state.access_token = state.access_token || false
+            }
         },
         setRefreshToken(state, val) {
             state.refresh_token = val
