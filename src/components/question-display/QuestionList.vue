@@ -1,4 +1,7 @@
 <template>
+  <el-divider/>
+  <display-cards :page-size="pageSize"  :display_list="qlist1" />
+  <el-divider/>
   <el-space wrap>
     <el-card v-for="i in pageSize" :key="i" class="box-card" style="width: 250px" v-show="i<=this.eleNum">
       <template #header>
@@ -37,8 +40,29 @@
 </template>
 
 <script>
+
+import store from "@/store";
+import DisplayCards from "@/components/question-display/displayLayout.vue";
 export default {
-  name: "questionList"
+  name: "questionList",
+  components: {DisplayCards},
+  created() {
+    this.pageSize = store.state.pageCfg.size
+  },
+  data(){
+    return{
+      pageSize:0,
+      qlist1:[],
+    }
+  },
+  method:{
+    changePage(val) {
+      //this.qlistReload()
+      this.pagenum = val
+      this.headIndex = (this.pagenum - 1) * 20
+      this.eleNum = (this.pagenum) * 20 > this.qlist1.length ? this.qlist1.length - this.headIndex : 20
+    },
+  }
 }
 </script>
 
