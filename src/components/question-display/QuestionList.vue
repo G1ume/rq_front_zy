@@ -143,7 +143,7 @@ export default {
       str = str.substring(0, str.length - 1)
       console.log("info", str)
       this.$axios({
-        method: "post",
+        method: "get",
         url: 'test',
         data: qs.stringify({select: str})
       }).then(res => {
