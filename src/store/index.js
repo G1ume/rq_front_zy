@@ -3,7 +3,7 @@ import Cookies from "js-cookie"
 
 export default createStore({
     state: {
-        pageCfg:{size:0},
+        pageCfg:{size:40},
         user_info:{user_name:"游客",user_id:0,user_avatar:""},
         // state里面定义了一些要使用的变量
         user_name: '游客',

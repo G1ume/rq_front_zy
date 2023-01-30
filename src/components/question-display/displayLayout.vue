@@ -1,9 +1,10 @@
 <template>
   <el-container>
+
     <el-main>
-      <el-row :gutter="10" v-for="lineNum in eleNum" :key="lineNum" justify="center">
-        <el-col :span="6"  v-for="columnNum in 4" :key="columnNum">
-          行,列{{lineNum}}{{columnNum}} <show-cards :questionID="15"/>
+      <el-row :gutter="10" v-for="lineOffset in lineNum" :key="lineOffset" justify="center">
+        <el-col :span="6"  v-for="columnOffset in columnNum" :key="columnOffset">
+          行,列{{lineNum}}{{columnOffset}} <show-cards :questionID="lineNum*colEle+columnOffset"/>
         </el-col>
       </el-row>
 <!--      <el-space wrap>-->
@@ -36,11 +37,18 @@ export default {
   data(){
     return{
       eleNum:15,
+      lineNum:10,
+      columnNum:this.colNum,
+      chapters:[],
       pageNum:0,
     }
   },
+  created() {
+    this.lineNum=Math.ceil(this.display_list.length/this.colNum)
+
+  },
   components: {ShowCards},
-  props:["display_list","pageSize"],
+  props:["display_list","pageSize","colNum"],
   methods:{
     getQuestionInstance(curIndex){
       return curIndex
